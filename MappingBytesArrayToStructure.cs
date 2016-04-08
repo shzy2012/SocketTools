@@ -13,7 +13,7 @@ namespace MappingBytesArrayToStructure {
     class Program {
 
         /// <summary>
-        /// 将struct转化为bytes
+        /// 将byte array转化为struct
         /// </summary>
         /// <param name="packet"></param>
         static void ConvertBytesToObject(byte[] packet) {
@@ -22,14 +22,29 @@ namespace MappingBytesArrayToStructure {
             pinnedPacket.Free();
         }
 
-        static void Main(string[] args) {
-            var id = BitConverter.GetBytes(123456);
-            var msg = Encoding.ASCII.GetBytes("abcde");
-            byte[] packet = id.Concat(msg).ToArray();
-            ConvertBytesToObject(packet);
+        /// <summary>
+        /// 将struct转化为byte array
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        static byte[] ConvertObjectToBytes(Message obj) {
+            int size = Marshal.SizeOf(obj);
+            byte[] arr = new byte[size];
 
-            // 将bytes转化为 struct
-            Message p = (Message)Marshal.PtrToStructure(Marshal.UnsafeAddrOfPinnedArrayElement(packet,10),typeof(Message));
+            IntPtr ptr = Marshal.AllocHGlobal(size);
+            Marshal.StructureToPtr(obj,ptr,true);
+            Marshal.Copy(ptr,arr,0,size);
+            Marshal.FreeHGlobal(ptr);
+            return arr;
+        }
+
+        static void Main(string[] args) {
+            var msgObj = new Message() {
+                id = 10, text = "Hello"
+            };
+
+            var getByte = ConvertObjectToBytes(msgObj);
+            ConvertBytesToObject(getByte);
         }
     }
 }
