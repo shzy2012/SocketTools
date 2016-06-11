@@ -103,9 +103,7 @@ namespace TodoMonitorProgram {
             //monitor.Start();
 
             //防止程序结束
-            while(true) {
-
-            }
+            Console.ReadLine();
         }
     }
 }
